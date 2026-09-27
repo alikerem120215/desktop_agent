@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquarius Agent - Yapay Zeka Masaüstü Asistanı</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- =========================================================================
+             1. YAN PANEL (SIDEBAR)
+             ========================================================================= -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-cube logo-icon"></i>
+                    <span>AQUARIUS</span>
+                </div>
+                <div class="status-badge">
+                    <span id="gemini-status-dot" class="dot red-pulse"></span>
+                    <span id="gemini-status-text">Gemini Çevrimdışı</span>
+                </div>
+            </div>
+
+            <!-- Sistem Kaynak Göstergeleri (Hardware Gauges) -->
+            <div class="metrics-container">
+                <h3><i class="fa-solid fa-gauge-high"></i> Sistem Durumu</h3>
+                
+                <div class="metrics-grid">
+                    <!-- CPU Card -->
+                    <div class="metric-card">
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" width="80" height="80">
+                                <circle class="progress-ring-bg" stroke="#1d1d26" stroke-width="6" fill="transparent" r="32" cx="40" cy="40"/>
+                                <circle id="cpu-ring" class="progress-ring-bar cpu-bar" stroke="#8b5cf6" stroke-width="6" fill="transparent" r="32" cx="40" cy="40" stroke-dasharray="201.06" stroke-dashoffset="201.06"/>
+                            </svg>
+                            <div class="ring-label"><span id="cpu-val">0</span>%</div>
+                        </div>
+                        <span class="card-name"><i class="fa-solid fa-microchip"></i> CPU</span>
+                    </div>
+
+                    <!-- RAM Card -->
+                    <div class="metric-card">
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" width="80" height="80">
+                                <circle class="progress-ring-bg" stroke="#1d1d26" stroke-width="6" fill="transparent" r="32" cx="40" cy="40"/>
+                                <circle id="ram-ring" class="progress-ring-bar ram-bar" stroke="#06b6d4" stroke-width="6" fill="transparent" r="32" cx="40" cy="40" stroke-dasharray="201.06" stroke-dashoffset="201.06"/>
+                            </svg>
+                            <div class="ring-label"><span id="ram-val">0</span>%</div>
+                        </div>
+                        <span class="card-name"><i class="fa-solid fa-memory"></i> Bellek</span>
+                        <span id="ram-details" class="card-sub">0/0 GB</span>
+                    </div>
+
+                    <!-- Disk Card -->
+                    <div class="metric-card">
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" width="80" height="80">
+                                <circle class="progress-ring-bg" stroke="#1d1d26" stroke-width="6" fill="transparent" r="32" cx="40" cy="40"/>
+                                <circle id="disk-ring" class="progress-ring-bar disk-bar" stroke="#10b981" stroke-width="6" fill="transparent" r="32" cx="40" cy="40" stroke-dasharray="201.06" stroke-dashoffset="201.06"/>
+                            </svg>
+                            <div class="ring-label"><span id="disk-val">0</span>%</div>
+                        </div>
+                        <span class="card-name"><i class="fa-solid fa-hard-drive"></i> Disk</span>
+                    </div>
+
+                    <!-- Pil Card -->
+                    <div class="metric-card">
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" width="80" height="80">
+                                <circle class="progress-ring-bg" stroke="#1d1d26" stroke-width="6" fill="transparent" r="32" cx="40" cy="40"/>
+                                <circle id="battery-ring" class="progress-ring-bar battery-bar" stroke="#f59e0b" stroke-width="6" fill="transparent" r="32" cx="40" cy="40" stroke-dasharray="201.06" stroke-dashoffset="201.06"/>
+                            </svg>
+                            <div class="ring-label">
+                                <span id="battery-val">0</span>%
+                                <i id="battery-charging-icon" class="fa-solid fa-bolt charging-icon hidden"></i>
+                            </div>
+                        </div>
+                        <span class="card-name"><i class="fa-solid fa-battery-half"></i> Pil</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hızlı Eylemler Panel -->
+            <div class="actions-panel">
+                <h3><i class="fa-solid fa-bolt"></i> Hızlı İşlemler</h3>
+                <div class="actions-buttons">
+                    <button id="btn-screenshot" class="btn btn-secondary">
+                        <i class="fa-solid fa-camera"></i> Ekran Görüntüsü Al
+                    </button>
+                    <button id="btn-quick-status" class="btn btn-secondary">
+                        <i class="fa-solid fa-chart-simple"></i> Sistem Raporu İste
+                    </button>
+                    <button id="btn-toggle-logs" class="btn btn-secondary">
+                        <i class="fa-solid fa-terminal"></i> Sistem Konsolu (<span id="log-count">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ayarlar ve Alt Kısım -->
+            <div class="sidebar-footer">
+                <button id="btn-settings" class="btn btn-primary btn-block">
+                    <i class="fa-solid fa-cog"></i> Bağlantı Ayarları
+                </button>
+                <div class="footer-info">
+                    <span>Localhost v1.0.0</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- =========================================================================
+             2. ANA MESAJLAŞMA ALANI (CHAT PANE)
+             ========================================================================= -->
+        <main class="chat-pane">
+            <header class="chat-header">
+                <div class="chat-title-info">
+                    <h2><i class="fa-solid fa-comment-dots text-purple"></i> Akıllı Ajan Sohbet Ekranı</h2>
+                    <p>Terminal komutları gönderebilir, dosya arayabilir veya sistem durumunu sorabilirsiniz.</p>
+                </div>
+                <div class="chat-status-indicators">
+                    <div class="indicator">
+                        <span id="bot-status-dot" class="dot red-pulse"></span>
+                        <span id="bot-status-text">Telegram: Devre Dışı</span>
+                    </div>
+                    <button id="btn-clear-chat" class="btn btn-danger-link" title="Sohbeti sıfırla">
+                        <i class="fa-solid fa-trash-can"></i> Temizle
+                    </button>
+                </div>
+            </header>
+
+            <!-- Sohbet Mesaj Zaman Tüneli -->
+            <div id="chat-timeline" class="chat-timeline">
+                <!-- Hoşgeldin Mesajı -->
+                <div class="message assistant-message glassmorphic">
+                    <div class="message-sender">
+                        <i class="fa-solid fa-robot"></i>
+                        <span>Aquarius Ajanı</span>
+                    </div>
+                    <div class="message-content">
+                        <p>Merhaba! Ben **Aquarius** Yapay Zeka Masaüstü Asistanıyım. İşletim sisteminizle doğrudan konuşabilen bir Gemini Ajanıyım. Bana şunları yaptırabilirsiniz:</p>
+                        <ul>
+                            <li>📊 <em>"Sistem durumunu kontrol et"</em></li>
+                            <li>📸 <em>"Ekran görüntüsü al"</em></li>
+                            <li>📂 <em>"İndirilenler klasöründeki dosyaları listele"</em></li>
+                            <li>📝 <em>"Masaüstünde test.txt dosyası aç ve içine 'Merhaba Dünya' yaz"</em></li>
+                            <li>🐚 <em>"Terminalde 'ls -la' komutunu çalıştır"</em></li>
+                        </ul>
+                        <p>Lütfen asistanın aktif olabilmesi için <strong>Bağlantı Ayarları</strong> menüsünden Gemini API Anahtarınızı kaydedin.</p>
+                    </div>
+                    <div class="message-time">Sistem Girişi</div>
+                </div>
+            </div>
+
+            <!-- Canlı Yazıyor Göstergesi -->
+            <div id="typing-indicator" class="typing-indicator hidden">
+                <div class="bubble">
+                    <div class="dot-bounce"></div>
+                    <div class="dot-bounce"></div>
+                    <div class="dot-bounce"></div>
+                </div>
+                <span>Ajan sistemi analiz ediyor...</span>
+            </div>
+
+            <!-- Mesaj Giriş Barı -->
+            <footer class="chat-footer">
+                <div class="input-wrapper glassmorphic">
+                    <input type="text" id="chat-input" placeholder="Ajanınıza bir komut verin (Örn: 'Masaüstündeki resimleri listele')..." autocomplete="off">
+                    <button id="btn-send-message" class="btn btn-circle" title="Gönder">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </footer>
+        </main>
+
+        <!-- =========================================================================
+             3. AYARLAR ÇEKMECESİ (SETTINGS DRAWER)
+             ========================================================================= -->
+        <div id="settings-overlay" class="drawer-overlay hidden"></div>
+        <div id="settings-drawer" class="drawer hidden">
+            <div class="drawer-header">
+                <h2><i class="fa-solid fa-sliders text-purple"></i> Bağlantı Yapılandırması</h2>
+                <button id="btn-close-settings" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="drawer-body">
+                <form id="config-form" onsubmit="event.preventDefault();">
+                    <!-- Gemini API Key Grubu -->
+                    <div class="form-group">
+                        <label for="gemini_api_key"><i class="fa-solid fa-key"></i> Gemini API Key</label>
+                        <div class="input-password-wrapper">
+                            <input type="password" id="gemini_api_key" placeholder="AIzaSy..." required autocomplete="off">
+                            <button type="button" class="btn-toggle-pwd" data-target="gemini_api_key">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <span class="help-text">Google AI Studio üzerinden edindiğiniz ücretsiz veya ücretli Gemini API anahtarınız.</span>
+                    </div>
+
+                    <!-- Divider -->
+                    <hr class="drawer-divider">
+
+                    <!-- Telegram Bot Grubu -->
+                    <div class="form-group row-inline">
+                        <label for="telegram_bot_enabled" class="checkbox-label">
+                            <input type="checkbox" id="telegram_bot_enabled">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text"><i class="fa-brands fa-telegram"></i> Telegram Uzaktan Kontrolünü Aktif Et</span>
+                        </label>
+                    </div>
+
+                    <div id="telegram-config-fields" class="hidden-fade">
+                        <div class="form-group">
+                            <label for="telegram_bot_token">Telegram Bot Token</label>
+                            <div class="input-password-wrapper">
+                                <input type="password" id="telegram_bot_token" placeholder="123456789:ABCdefGhI..." autocomplete="off">
+                                <button type="button" class="btn-toggle-pwd" data-target="telegram_bot_token">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <span class="help-text">@BotFather üzerinden oluşturduğunuz Telegram Botunuza ait API Token.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telegram_authorized_chat_ids">Yetkili Telegram Chat ID'leri</label>
+                            <input type="text" id="telegram_authorized_chat_ids" placeholder="Örn: 987654321, 123456789">
+                            <span class="help-text">Bilgisayarınızı kontrol edebilecek yetkili kullanıcıların ID'leri (Virgülle ayırın). Boş bırakırsanız güvenlik amacıyla kimse erişemez!</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="drawer-footer">
+                <button id="btn-save-config" class="btn btn-primary btn-block">
+                    <i class="fa-solid fa-save"></i> Yapılandırmayı Kaydet & Başlat
+                </button>
+            </div>
+        </div>
+
+        <!-- =========================================================================
+             4. SİSTEM KONSOL ÇEKMECESİ (LOGS DRAWER)
+             ========================================================================= -->
+        <div id="logs-drawer" class="logs-drawer collapsed">
+            <header class="logs-drawer-header">
+                <div class="logs-title">
+                    <i class="fa-solid fa-terminal text-green"></i> <span>Sistem ve Telegram Canlı Konsolu</span>
+                </div>
+                <div class="logs-actions">
+                    <button id="btn-clear-logs" class="btn-link" title="Konsolu temizle"><i class="fa-solid fa-eraser"></i> Temizle</button>
+                    <button id="btn-expand-logs" class="btn-link" title="Genişlet/Daralt"><i class="fa-solid fa-angle-up"></i></button>
+                </div>
+            </header>
+            <div class="logs-drawer-body">
+                <pre id="log-output" class="terminal-view">Sistem konsolu dinleniyor...</pre>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Alert Modal / Notification -->
+    <div id="notification-toast" class="notification hidden">
+        <i class="fa-solid fa-info-circle info-icon"></i>
+        <span id="notification-message">Bilgilendirme Mesajı</span>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

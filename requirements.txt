@@ -1,0 +1,6 @@
+google-generativeai
+psutil
+pillow
+pyTelegramBotAPI
+python-dotenv
+Flask
